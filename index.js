@@ -1,5 +1,6 @@
 const baseWidth = 4;
 const baseZoom = 12
+const hoverBuffer = 3; // Buffer in pixels for easier hovering/clicking
 
 // Template loading functions
 let hoverTemplate = '';
@@ -114,7 +115,22 @@ map.on('load', function () {
     }
     // 'road-label-simple' // Add layer below labels - doesn't exist in standard style
 );
+
+// Add invisible buffer layer for easier hovering/clicking
+map.addLayer({
+    'id': 'lts-buffer-layer',
+    'source': 'LTS_source',
+    'slot': 'middle',
+    'type': 'line',
+    'paint': {
+        'line-color': 'rgba(0,0,0,0)', // transparent
+        'line-width': baseWidth + (hoverBuffer * 2), // Add buffer on both sides
+        'line-opacity': 0
+    }
+});
+
 map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
+map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
 
 // create legend
 const legend = document.getElementById('legend');
@@ -139,7 +155,7 @@ LTS_names.forEach((LTS_name, i) => {
 
     // When a click event occurs on a feature in the places layer, open a popup at the
     // location of the feature, with description HTML from its properties.
-    map.on('click', 'lts-layer', (e) => {
+    map.on('click', 'lts-buffer-layer', (e) => {
         // Copy coordinates array.
         const coordinates = e.features[0].geometry.coordinates.slice(); // I don't think this works with line strings
         
@@ -163,7 +179,7 @@ LTS_names.forEach((LTS_name, i) => {
     });
 
     // Show smiley popup on hover
-    map.on('mouseenter', 'lts-layer', (e) => {
+    map.on('mouseenter', 'lts-buffer-layer', (e) => {
         map.getCanvas().style.cursor = 'pointer';
         
         const ltsValue = e.features[0].properties.LTS || 0;
@@ -181,7 +197,7 @@ LTS_names.forEach((LTS_name, i) => {
     });
 
     // Hide popup on mouse leave
-    map.on('mouseleave', 'lts-layer', () => {
+    map.on('mouseleave', 'lts-buffer-layer', () => {
         map.getCanvas().style.cursor = '';
         hoverPopup.remove();
     });
@@ -189,6 +205,7 @@ LTS_names.forEach((LTS_name, i) => {
     map.on('zoom', () => {
         document.getElementById('zoom').textContent = map.getZoom().toFixed(2);
         map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
+        map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
     });
 })
 
