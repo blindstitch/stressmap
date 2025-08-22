@@ -1,6 +1,20 @@
 const baseWidth = 4;
 const baseZoom = 12
 
+// Template loading functions
+let detailTemplate = '';
+// Load templates
+fetch('./tpl/detail-popup.html')
+    .then(response => response.text())
+    .then(html => { detailTemplate = html; });
+
+// Template replacement function
+function replaceTemplate(template, data) {
+    return template.replace(/{{(\w+)}}/g, (match, key) => {
+        return data[key] !== undefined ? data[key] : '';
+    });
+}
+
 mapboxgl.accessToken = 'pk.eyJ1IjoidHNjaGllZ2dtIiwiYSI6ImNrZHoyb25iYjMxMWQzM2p6eHlibHJkanIifQ.wj-SisFvNPgakxBy_1ZnHw';
 const map = new mapboxgl.Map({
     container: 'map', // container ID
@@ -97,132 +111,9 @@ LTS_names.forEach((LTS_name, i) => {
     map.on('click', 'lts-layer', (e) => {
         // Copy coordinates array.
         const coordinates = e.features[0].geometry.coordinates.slice(); // I don't think this works with line strings
-        const description = `
-        <h1>${e.features[0].properties.name}</h1>
-        <p>Road Type: ${e.features[0].properties.highway}<br></p>
-        <table>
-            <tr>
-                <th>Value</th>
-                <th>Left/Rev</th>
-                <th>Right/Fwd</th>
-            </tr>
-            <tr>
-                <td><b>LTS</b></td>
-                <td><b>${e.features[0].properties.LTS_rev}</b></td>
-                <td><b>${e.features[0].properties.LTS_fwd}</b></td>
-            </tr>
-            <tr>
-                <td colspan="3"><b>Bike Infrastructure</b></td>
-            </tr>
-            <tr>
-                <td>Bike Permitted</td>
-                <td>${e.features[0].properties.bike_allowed_rev}</td>
-                <td>${e.features[0].properties.bike_allowed_fwd}</td>
-            </tr>
-            <tr>
-                <td>Bike Lane</td>
-                <td>${e.features[0].properties.bike_lane_rev}</td>
-                <td>${e.features[0].properties.bike_lane_fwd}</td>
-            </tr>
-            <tr>
-                <td>Separation</td>
-                <td>${e.features[0].properties.separation_rev}</td>
-                <td>${e.features[0].properties.separation_fwd}</td>
-            </tr>
-            <tr>
-                <td>Width</td>
-                <td>${e.features[0].properties.bike_width_rev} <font color="gray">${e.features[0].properties.bike_width_rule_rev}</font></td>
-                <td>${e.features[0].properties.bike_width_fwd} <font color="gray">${e.features[0].properties.bike_width_rule_fwd}</font></td>
-            </tr>
-            <tr>
-                <td>Buffer</td>
-                <td>${e.features[0].properties.buffer_rev} <font color="gray">${e.features[0].properties.bike_width_rule_rev}</font></td>
-                <td>${e.features[0].properties.buffer_fwd} <font color="gray">${e.features[0].properties.bike_width_rule_fwd}</font></td>
-            </tr>
-            <tr>
-                <td>Reach</td>
-                <td>${e.features[0].properties.bike_reach_rev}</td>
-                <td>${e.features[0].properties.bike_reach_fwd}</td>
-            </tr>
-
-            <tr>
-                <td colspan="3"><b>Street Design for Cars</b></td>
-            </tr>
-            <tr>
-                <td>Oneway</td>
-                <td colspan="2">${e.features[0].properties.oneway} <font color="gray">${e.features[0].properties.street_narrow_wide}</font></td>
-            </tr>
-            <tr>
-                <td>Street Width</td>
-                <td colspan="2">${e.features[0].properties.width_street} <font color="gray">${e.features[0].properties.width_street_rule}</font></td>
-            </tr>
-            <tr>
-                <td>Parking</td>
-                <td>${e.features[0].properties.parking_rev}</td>
-                <td>${e.features[0].properties.parking_fwd}</td>
-            </tr>
-            <tr>
-                <td>Parking Width</td>
-                <td>${e.features[0].properties.parking_width_rev}</td>
-                <td>${e.features[0].properties.parking_width_fwd}</td>
-            </tr>
-            <tr>
-                <td>Lane Count</td>
-                <td colspan="2">${e.features[0].properties.lane_count}</td>
-            </tr>
-            <tr>
-                <td>Prevailing Speed</td>
-                <td colspan="2">${e.features[0].properties.speed} <font color="gray">${e.features[0].properties.speed_rule}</font></td>
-            </tr>
-            <tr>
-                <td>Centerline</td>
-                <td colspan="2">${e.features[0].properties.centerline} <font color="gray">${e.features[0].properties.centerline_rule}</font></td>
-            </tr>
-            <tr>
-                <td>Average Daily Traffic (ADT)</td>
-                <td colspan="2">${e.features[0].properties.ADT} <font color="gray">${e.features[0].properties.ADT_rule}</font></td>
-            </tr>
-            <tr>
-                <td colspan="3"><b>Technical Info</b></td>
-            </tr>
-            <tr>
-                <td>OSMid</td>
-                <td colspan="2"><a href="https://www.openstreetmap.org/way/${e.features[0].properties.osmid}" target="_blank">${e.features[0].properties.osmid}</a></td>
-            </tr>
-            <tr>
-                <td>Zoom</td>
-                <td colspan="2">${e.features[0].properties.zoom}</td>
-            </tr>
-            <tr>
-                <td>LTS_biking_permitted</td>
-                <td>${e.features[0].properties.LTS_biking_permitted_rev}</td>
-                <td>${e.features[0].properties.LTS_biking_permitted_fwd}</td>
-            </tr>
-            <tr>
-                <td>LTS_mixed</td>
-                <td>${e.features[0].properties.LTS_mixed_rev}</td>
-                <td>${e.features[0].properties.LTS_mixed_fwd}</td>
-            </tr>
-            <tr>
-                <td>LTS_bikelane_noparking</td>
-                <td>${e.features[0].properties.LTS_bikelane_noparking_rev}</td>
-                <td>${e.features[0].properties.LTS_bikelane_noparking_fwd}</td>
-            </tr>
-            <tr>
-                <td>LTS_bikelane_yesparking</td>
-                <td>${e.features[0].properties.LTS_bikelane_yesparking_rev}</td>
-                <td>${e.features[0].properties.LTS_bikelane_yesparking_fwd}</td>
-            </tr>
-            <tr>
-                <td>LTS_separation</td>
-                <td>${e.features[0].properties.LTS_separation_rev}</td>
-                <td>${e.features[0].properties.LTS_separation_fwd}</td>
-            </tr>
-            <tr>
-                <td>Parse</td>
-                <td colspan="2">${e.features[0].properties.parse}</td>
-            </tr>
-        </table>`;
+        
+        const properties = e.features[0].properties;
+        const description = replaceTemplate(detailTemplate, properties);
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears

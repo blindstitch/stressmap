@@ -1,0 +1,124 @@
+<h1>{{name}}</h1>
+<p>Road Type: {{highway}}<br></p>
+<table>
+    <tr>
+        <th>Value</th>
+        <th>Left/Rev</th>
+        <th>Right/Fwd</th>
+    </tr>
+    <tr>
+        <td><b>LTS</b></td>
+        <td><b>{{LTS_rev}}</b></td>
+        <td><b>{{LTS_fwd}}</b></td>
+    </tr>
+    <tr>
+        <td colspan="3"><b>Bike Infrastructure</b></td>
+    </tr>
+    <tr>
+        <td>Bike Permitted</td>
+        <td>{{bike_allowed_rev}}</td>
+        <td>{{bike_allowed_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Bike Lane</td>
+        <td>{{bike_lane_rev}}</td>
+        <td>{{bike_lane_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Separation</td>
+        <td>{{separation_rev}}</td>
+        <td>{{separation_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Width</td>
+        <td>{{bike_width_rev}} <font color="gray">{{bike_width_rule_rev}}</font></td>
+        <td>{{bike_width_fwd}} <font color="gray">{{bike_width_rule_fwd}}</font></td>
+    </tr>
+    <tr>
+        <td>Buffer</td>
+        <td>{{buffer_rev}} <font color="gray">{{bike_width_rule_rev}}</font></td>
+        <td>{{buffer_fwd}} <font color="gray">{{bike_width_rule_fwd}}</font></td>
+    </tr>
+    <tr>
+        <td>Reach</td>
+        <td>{{bike_reach_rev}}</td>
+        <td>{{bike_reach_fwd}}</td>
+    </tr>
+    <tr>
+        <td colspan="3"><b>Street Design for Cars</b></td>
+    </tr>
+    <tr>
+        <td>Oneway</td>
+        <td colspan="2">{{oneway}} <font color="gray">{{street_narrow_wide}}</font></td>
+    </tr>
+    <tr>
+        <td>Street Width</td>
+        <td colspan="2">{{width_street}} <font color="gray">{{width_street_rule}}</font></td>
+    </tr>
+    <tr>
+        <td>Parking</td>
+        <td>{{parking_rev}}</td>
+        <td>{{parking_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Parking Width</td>
+        <td>{{parking_width_rev}}</td>
+        <td>{{parking_width_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Lane Count</td>
+        <td colspan="2">{{lane_count}}</td>
+    </tr>
+    <tr>
+        <td>Prevailing Speed</td>
+        <td colspan="2">{{speed}} <font color="gray">{{speed_rule}}</font></td>
+    </tr>
+    <tr>
+        <td>Centerline</td>
+        <td colspan="2">{{centerline}} <font color="gray">{{centerline_rule}}</font></td>
+    </tr>
+    <tr>
+        <td>Average Daily Traffic (ADT)</td>
+        <td colspan="2">{{ADT}} <font color="gray">{{ADT_rule}}</font></td>
+    </tr>
+    <tr>
+        <td colspan="3"><b>Technical Info</b></td>
+    </tr>
+    <tr>
+        <td>OSMid</td>
+        <td colspan="2"><a href="https://www.openstreetmap.org/way/{{osmid}}" target="_blank">{{osmid}}</a></td>
+    </tr>
+    <tr>
+        <td>Zoom</td>
+        <td colspan="2">{{zoom}}</td>
+    </tr>
+    <tr>
+        <td>LTS_biking_permitted</td>
+        <td>{{LTS_biking_permitted_rev}}</td>
+        <td>{{LTS_biking_permitted_fwd}}</td>
+    </tr>
+    <tr>
+        <td>LTS_mixed</td>
+        <td>{{LTS_mixed_rev}}</td>
+        <td>{{LTS_mixed_fwd}}</td>
+    </tr>
+    <tr>
+        <td>LTS_bikelane_noparking</td>
+        <td>{{LTS_bikelane_noparking_rev}}</td>
+        <td>{{LTS_bikelane_noparking_fwd}}</td>
+    </tr>
+    <tr>
+        <td>LTS_bikelane_yesparking</td>
+        <td>{{LTS_bikelane_yesparking_rev}}</td>
+        <td>{{LTS_bikelane_yesparking_fwd}}</td>
+    </tr>
+    <tr>
+        <td>LTS_separation</td>
+        <td>{{LTS_separation_rev}}</td>
+        <td>{{LTS_separation_fwd}}</td>
+    </tr>
+    <tr>
+        <td>Parse</td>
+        <td colspan="2">{{parse}}</td>
+    </tr>
+</table>
