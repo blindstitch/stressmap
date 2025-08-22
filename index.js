@@ -5,19 +5,19 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidHNjaGllZ2dtIiwiYSI6ImNrZHoyb25iYjMxMWQzM2p6e
 const map = new mapboxgl.Map({
     container: 'map', // container ID
     center: [-72.667638, 42.3164662], // Noho starting position [lng, lat]
-    style:'mapbox://styles/mapbox/dark-v11',
-    // style: 'mapbox://styles/mapbox/standard',
-    // config: {
-    //     basemap: {
-    //     lightPreset: 'day',
-    //     showPlaceLabels: false,
-    //     showPointOfInterestLabels: false,
-    //     theme: 'monochrome',
-    //     show3dObjects: false,
-    //     showTransitLabels: true,
-    //     showRoadLabels: true
-    //     }
-    // },
+    // style:'mapbox://styles/mapbox/dark-v11',
+    style: 'mapbox://styles/mapbox/standard',
+    config: {
+        basemap: {
+        lightPreset: 'day',
+        showPlaceLabels: false,
+        showPointOfInterestLabels: false,
+        theme: 'monochrome',
+        show3dObjects: false,
+        showTransitLabels: true,
+        showRoadLabels: true
+        }
+    },
     zoom: baseZoom // starting zoom
 });
 
@@ -49,7 +49,7 @@ map.on('load', function () {
         'id': 'lts-layer',
         'source': 'LTS_source',
         //'source-layer': 'lts', // replaces 'road-label-simple' which seems to work for light-v11 but not standard style
-        // 'slot': 'middle',
+        'slot': 'middle',
         "type": "line",
         'paint': {
             'line-color': [
@@ -66,8 +66,8 @@ map.on('load', function () {
             "line-width": baseWidth,
             // 'line-opacity': 0.5,
         }
-    },
-    'road-label-simple' // Add layer below labels
+    }
+    // 'road-label-simple' // Add layer below labels - doesn't exist in standard style
 );
 map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
 
