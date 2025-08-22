@@ -2,8 +2,14 @@ const baseWidth = 4;
 const baseZoom = 12
 
 // Template loading functions
+let hoverTemplate = '';
 let detailTemplate = '';
+
 // Load templates
+fetch('./tpl/hover-popup.html')
+    .then(response => response.text())
+    .then(html => { hoverTemplate = html; });
+
 fetch('./tpl/detail-popup.html')
     .then(response => response.text())
     .then(html => { detailTemplate = html; });
@@ -40,6 +46,31 @@ map.on('load', function () {
         type: 'geojson',
         data: 'plots/LTS.json'
     });
+
+    // Create popup for hover with smiley faces
+    const hoverPopup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
+    // Smiley faces for different stress levels
+    const stressFaces = {
+        0: '😐', // no data - neutral
+        1: '😊', // LTS 1
+        2: '🙂', // LTS 2
+        3: '😟', // LTS 3
+        4: '😠', // LTS 4
+        5: '😐'  // no data
+    };
+
+    const stressLabels = {
+        0: 'No Data',
+        1: 'Low Stress',
+        2: 'Moderate Stress', 
+        3: 'High Stress',
+        4: 'Very High Stress',
+        5: 'No Data'
+    };
     const colors = [
         'black',
         // Colors based on 5 equally spaced from 'turbo' colormap
@@ -131,14 +162,28 @@ LTS_names.forEach((LTS_name, i) => {
             .addTo(map);
     });
 
-    // Change the cursor to a pointer when the mouse is over the LTS layer.
-    map.on('mouseenter', 'lts-layer', () => {
+    // Show smiley popup on hover
+    map.on('mouseenter', 'lts-layer', (e) => {
         map.getCanvas().style.cursor = 'pointer';
+        
+        const ltsValue = e.features[0].properties.LTS || 0;
+        const face = stressFaces[ltsValue] || '😐';
+        const label = stressLabels[ltsValue] || 'Unknown';
+        
+        const htmlContent = replaceTemplate(hoverTemplate, {
+            emoji: face,
+            label: label
+        });
+        
+        hoverPopup.setLngLat(e.lngLat)
+            .setHTML(htmlContent)
+            .addTo(map);
     });
 
-    // Change it back to a pointer when it leaves.
+    // Hide popup on mouse leave
     map.on('mouseleave', 'lts-layer', () => {
         map.getCanvas().style.cursor = '';
+        hoverPopup.remove();
     });
 
     map.on('zoom', () => {
