@@ -3,6 +3,10 @@ body {
     padding: 0;
 }
 
+table {
+    font-size: 12px;
+}
+
 #map {
     position: absolute;
     top: 0;
