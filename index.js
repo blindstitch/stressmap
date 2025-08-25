@@ -129,8 +129,8 @@ map.addLayer({
     }
 });
 
-map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
-map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
+map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
+map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
 
 // create legend
 const legend = document.getElementById('legend');
@@ -204,8 +204,8 @@ LTS_names.forEach((LTS_name, i) => {
 
     map.on('zoom', () => {
         document.getElementById('zoom').textContent = map.getZoom().toFixed(2);
-        map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
-        map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()]);
+        map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
+        map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
     });
 })
 
