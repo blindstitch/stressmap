@@ -1,6 +1,6 @@
 const baseWidth = 4;
 const baseZoom = 12
-const hoverBuffer = 3; // Buffer in pixels for easier hovering/clicking
+const hoverBuffer = 6; // Buffer in pixels for easier hovering/clicking
 const highlightWidth = 8; // Width of highlight stroke around clicked segments
 
 // Template loading functions
