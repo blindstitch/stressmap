@@ -192,7 +192,6 @@ LTS_names.forEach((LTS_name, i) => {
         
         panelContent.innerHTML = `
             <button class="panel-close" onclick="closeInfoPanel()">&times;</button>
-            <div class="panel-header">${properties.name || 'Road Segment'}</div>
             ${description}
         `;
         
