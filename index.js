@@ -1,6 +1,7 @@
 const baseWidth = 4;
 const baseZoom = 12
 const hoverBuffer = 3; // Buffer in pixels for easier hovering/clicking
+const highlightWidth = 8; // Width of highlight stroke around clicked segments
 
 // Template loading functions
 let hoverTemplate = '';
@@ -129,8 +130,25 @@ map.addLayer({
     }
 });
 
+// Add highlight layer for clicked segments
+map.addLayer({
+    'id': 'lts-highlight-layer',
+    'source': 'LTS_source',
+    'slot': 'middle',
+    'type': 'line',
+    'paint': {
+        'line-color': '#FFD700', // Gold highlight color
+        'line-width': highlightWidth,
+        'line-opacity': 0.8
+    },
+    'layout': {
+        'visibility': 'none' // Initially hidden
+    }
+});
+
 map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
 map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
+map.setFilter('lts-highlight-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
 
 // create legend
 const legend = document.getElementById('legend');
@@ -161,6 +179,13 @@ LTS_names.forEach((LTS_name, i) => {
         
         const properties = e.features[0].properties;
         const description = replaceTemplate(detailTemplate, properties);
+
+        // Highlight the clicked segment
+        const osmid = properties.osmid;
+        if (osmid) {
+            map.setLayoutProperty('lts-highlight-layer', 'visibility', 'visible');
+            map.setFilter('lts-highlight-layer', ['==', 'osmid', osmid]);
+        }
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -202,10 +227,21 @@ LTS_names.forEach((LTS_name, i) => {
         hoverPopup.remove();
     });
 
+    // Clear highlight when clicking elsewhere on the map
+    map.on('click', (e) => {
+        // Check if click was on the buffer layer
+        const features = map.queryRenderedFeatures(e.point, { layers: ['lts-buffer-layer'] });
+        if (features.length === 0) {
+            // Clicked somewhere else, hide highlight
+            map.setLayoutProperty('lts-highlight-layer', 'visibility', 'none');
+        }
+    });
+
     map.on('zoom', () => {
         document.getElementById('zoom').textContent = map.getZoom().toFixed(2);
         map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
         map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
+        map.setFilter('lts-highlight-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
     });
 })
 
