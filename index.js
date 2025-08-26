@@ -59,12 +59,12 @@ map.on('load', function () {
 
     // Smiley faces for different stress levels
     const stressFaces = {
-        0: '😐', // no data - neutral
+        0: '', // no data
         1: '😊', // LTS 1
         2: '🙂', // LTS 2
         3: '😟', // LTS 3
         4: '😠', // LTS 4
-        5: '😐'  // no data
+        5: ''  // no data
     };
 
     const stressLabels = {
