@@ -49,11 +49,13 @@ map.on('load', function () {
         data: 'plots/LTS.json'
     });
 
-    // Create popup for hover with smiley faces
+    // Create popup for hover with smiley faces that tracks pointer
     const hoverPopup = new mapboxgl.Popup({
         closeButton: false,
-        closeOnClick: false
-    });
+        closeOnClick: false,
+        anchor: 'top-left', // Anchor at top-left so popup appears bottom-right of cursor
+        offset: [20, 20] // 20px offset in both dimensions
+    }).trackPointer();
 
     // Smiley faces for different stress levels
     const stressFaces = {
@@ -211,9 +213,7 @@ LTS_names.forEach((LTS_name, i) => {
             label: label
         });
         
-        hoverPopup.setLngLat(e.lngLat)
-            .setHTML(htmlContent)
-            .addTo(map);
+        hoverPopup.setHTML(htmlContent).addTo(map);
     });
 
     // Hide popup on mouse leave
