@@ -54,7 +54,7 @@ map.on('load', function () {
         closeButton: false,
         closeOnClick: false,
         anchor: 'top-left', // Anchor at top-left so popup appears bottom-right of cursor
-        offset: [20, 20] // 20px offset in both dimensions
+        offset: [10, 50] // 20px offset in both dimensions
     }).trackPointer();
 
     // Smiley faces for different stress levels
