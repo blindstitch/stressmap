@@ -171,12 +171,8 @@ LTS_names.forEach((LTS_name, i) => {
   legend.appendChild(item);
 });
 
-    // When a click event occurs on a feature in the places layer, open a popup at the
-    // location of the feature, with description HTML from its properties.
+    // When a click event occurs on a feature in the places layer, show info in the custom panel
     map.on('click', 'lts-buffer-layer', (e) => {
-        // Copy coordinates array.
-        const coordinates = e.features[0].geometry.coordinates.slice(); // I don't think this works with line strings
-        
         const properties = e.features[0].properties;
         const description = replaceTemplate(detailTemplate, properties);
 
@@ -232,8 +228,9 @@ LTS_names.forEach((LTS_name, i) => {
         // Check if click was on the buffer layer
         const features = map.queryRenderedFeatures(e.point, { layers: ['lts-buffer-layer'] });
         if (features.length === 0) {
-            // Clicked somewhere else, hide highlight
+            // Clicked somewhere else, hide highlight and close panel
             map.setLayoutProperty('lts-highlight-layer', 'visibility', 'none');
+            document.getElementById('info-panel').style.display = 'none';
         }
     });
 
