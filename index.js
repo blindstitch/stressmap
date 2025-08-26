@@ -158,20 +158,23 @@ LTS_names.forEach((LTS_name, i) => {
     if (LTS_name === no_data) {
         return
     }
-  const color = colors[i];
-  const item = document.createElement('div');
-  const key = document.createElement('span');
-  key.className = 'legend-key';
-  key.style.backgroundColor = color;
+    const color = colors[i];
+    const item = document.createElement('div');
+    item.className = 'legend-item'; // Add proper class
+    
+    const key = document.createElement('span');
+    key.className = 'legend-key';
+    key.style.backgroundColor = color;
 
-  const value = document.createElement('span');
-  value.innerHTML = `${LTS_name}`;
-  item.appendChild(key);
-  item.appendChild(value);
-  legend.appendChild(item);
+    const value = document.createElement('span');
+    value.innerHTML = `${LTS_name}`;
+    
+    item.appendChild(key);
+    item.appendChild(value);
+    legend.appendChild(item);
 });
 
-    // When a click event occurs on a feature in the places layer, show info in the custom panel
+    // When a click event occurs on a feature, show info in the panel
     map.on('click', 'lts-buffer-layer', (e) => {
         const properties = e.features[0].properties;
         const description = replaceTemplate(detailTemplate, properties);
@@ -183,20 +186,17 @@ LTS_names.forEach((LTS_name, i) => {
             map.setFilter('lts-highlight-layer', ['==', 'osmid', osmid]);
         }
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        if (['mercator', 'equirectangular'].includes(map.getProjection().name)) {
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-        }
-
-        new mapboxgl.Popup()
-            .setLngLat(e.lngLat) // Changed to use click location instead of feature location (I think)
-            .setHTML(description)
-            .setMaxWidth("600px")
-            .addTo(map);
+        // Show info in the panel
+        const infoPanel = document.getElementById('info-panel');
+        const panelContent = infoPanel.querySelector('.panel-content');
+        
+        panelContent.innerHTML = `
+            <button class="panel-close" onclick="closeInfoPanel()">&times;</button>
+            <div class="panel-header">${properties.name || 'Road Segment'}</div>
+            ${description}
+        `;
+        
+        infoPanel.style.display = 'block';
     });
 
     // Show smiley popup on hover
@@ -235,10 +235,16 @@ LTS_names.forEach((LTS_name, i) => {
     });
 
     map.on('zoom', () => {
-        document.getElementById('zoom').textContent = map.getZoom().toFixed(2);
         map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
         map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
         map.setFilter('lts-highlight-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
     });
 })
+
+// Function to close the info panel
+function closeInfoPanel() {
+    document.getElementById('info-panel').style.display = 'none';
+    // Also clear the highlight when closing the panel
+    map.setLayoutProperty('lts-highlight-layer', 'visibility', 'none');
+}
 
