@@ -177,6 +177,15 @@ LTS_names.forEach((LTS_name, i) => {
     legend.appendChild(item);
 });
 
+// Add zoom display after legend items
+const zoomDisplay = document.createElement('div');
+zoomDisplay.className = 'zoom-display';
+zoomDisplay.innerHTML = 'Zoom level: <span id="zoom-level">--</span>';
+legend.appendChild(zoomDisplay);
+
+// Initialize zoom display after creating it
+document.getElementById('zoom-level').textContent = map.getZoom().toFixed(1);
+
     // When a click event occurs on a feature, show info in the panel
     map.on('click', 'lts-buffer-layer', (e) => {
         const properties = e.features[0].properties;
@@ -272,6 +281,10 @@ LTS_names.forEach((LTS_name, i) => {
         const zoomFilter = ['<=', ['get', 'zoom'], map.getZoom()+1];
         map.setFilter('lts-layer', zoomFilter);
         map.setFilter('lts-buffer-layer', zoomFilter);
+        
+        // Update zoom display
+        document.getElementById('zoom-level').textContent = map.getZoom().toFixed(1);
+        
         // Feature state highlights persist automatically through zoom
     });
 })

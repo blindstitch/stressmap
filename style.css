@@ -174,3 +174,15 @@ table {
     -moz-user-select: none;
     -ms-user-select: none;
 }
+
+.zoom-display {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 11px;
+    color: #666;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
