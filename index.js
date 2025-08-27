@@ -183,7 +183,7 @@ LTS_names.forEach((LTS_name, i) => {
         const description = replaceTemplate(detailTemplate, properties);
 
         // Always clear previous highlights first
-        console.log('Clearing', currentHighlightedFeatureIds.length, 'previous highlights');
+        // console.log('Clearing', currentHighlightedFeatureIds.length, 'previous highlights');
         currentHighlightedFeatureIds.forEach(featureId => {
             map.setFeatureState(
                 { source: 'LTS_source', id: featureId },
@@ -195,14 +195,14 @@ LTS_names.forEach((LTS_name, i) => {
         // Find all features with the same road name
         const roadName = properties.name;
         if (roadName) {
-            console.log('Collecting features for road name:', roadName);
+            // console.log('Collecting features for road name:', roadName);
             
             // Query all features with matching name
             const allFeatures = map.querySourceFeatures('LTS_source', {
                 filter: ['==', 'name', roadName]
             });
             
-            console.log('Found', allFeatures.length, 'features to highlight');
+            // console.log('Found', allFeatures.length, 'features to highlight');
             
             // Batch update feature states
             allFeatures.forEach(feature => {
@@ -256,7 +256,7 @@ LTS_names.forEach((LTS_name, i) => {
         const features = map.queryRenderedFeatures(e.point, { layers: ['lts-buffer-layer'] });
         if (features.length === 0) {
             // Clicked somewhere else, clear highlight and close panel
-            console.log('Clearing all highlights - clicked elsewhere');
+            // console.log('Clearing all highlights - clicked elsewhere');
             currentHighlightedFeatureIds.forEach(featureId => {
                 map.setFeatureState(
                     { source: 'LTS_source', id: featureId },
@@ -272,7 +272,7 @@ LTS_names.forEach((LTS_name, i) => {
         const zoomFilter = ['<=', ['get', 'zoom'], map.getZoom()+1];
         map.setFilter('lts-layer', zoomFilter);
         map.setFilter('lts-buffer-layer', zoomFilter);
-        // Feature state highlights persist automatically through zoom!
+        // Feature state highlights persist automatically through zoom
     });
 })
 
