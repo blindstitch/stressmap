@@ -43,6 +43,9 @@ const map = new mapboxgl.Map({
     zoom: baseZoom // starting zoom
 });
 
+// Store the currently highlighted feature IDs globally
+let currentHighlightedFeatureIds = [];
+
 map.on('load', function () {
     map.addSource('LTS_source', {
         type: 'geojson',
@@ -102,18 +105,33 @@ map.on('load', function () {
         "type": "line",
         'paint': {
             'line-color': [
-                'match',
-                ['get', 'LTS'],
-                0, colors[0],
-                // Colors based on 5 equally spaced from 'turbo' colormap
-                1, colors[1],
-                2, colors[2],
-                3, colors[3],
-                4, colors[4],
-                colors[5]
+                'case',
+                ['boolean', ['feature-state', 'highlighted'], false],
+                '#FFD700', // Gold highlight when selected
+                [
+                    'match',
+                    ['get', 'LTS'],
+                    0, colors[0],
+                    // Colors based on 5 equally spaced from 'turbo' colormap
+                    1, colors[1],
+                    2, colors[2],
+                    3, colors[3],
+                    4, colors[4],
+                    colors[5]
+                ]
             ],
-            "line-width": baseWidth,
-            // 'line-opacity': 0.5,
+            'line-width': [
+                'case',
+                ['boolean', ['feature-state', 'highlighted'], false],
+                highlightWidth, // Thicker when highlighted
+                baseWidth // Normal width
+            ],
+            'line-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'highlighted'], false],
+                0.9, // Slightly more opaque when highlighted
+                1.0  // Normal opacity
+            ]
         }
     }
     // 'road-label-simple' // Add layer below labels - doesn't exist in standard style
@@ -132,25 +150,8 @@ map.addLayer({
     }
 });
 
-// Add highlight layer for clicked segments
-map.addLayer({
-    'id': 'lts-highlight-layer',
-    'source': 'LTS_source',
-    'slot': 'middle',
-    'type': 'line',
-    'paint': {
-        'line-color': '#FFD700', // Gold highlight color
-        'line-width': highlightWidth,
-        'line-opacity': 0.8
-    },
-    'layout': {
-        'visibility': 'none' // Initially hidden
-    }
-});
-
 map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
 map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
-map.setFilter('lts-highlight-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
 
 // create legend
 const legend = document.getElementById('legend');
@@ -181,11 +182,38 @@ LTS_names.forEach((LTS_name, i) => {
         const properties = e.features[0].properties;
         const description = replaceTemplate(detailTemplate, properties);
 
-        // Highlight the clicked segment
-        const osmid = properties.osmid;
-        if (osmid) {
-            map.setLayoutProperty('lts-highlight-layer', 'visibility', 'visible');
-            map.setFilter('lts-highlight-layer', ['==', 'osmid', osmid]);
+        // Always clear previous highlights first
+        console.log('Clearing', currentHighlightedFeatureIds.length, 'previous highlights');
+        currentHighlightedFeatureIds.forEach(featureId => {
+            map.setFeatureState(
+                { source: 'LTS_source', id: featureId },
+                { highlighted: false }
+            );
+        });
+        currentHighlightedFeatureIds = [];
+
+        // Find all features with the same road name
+        const roadName = properties.name;
+        if (roadName) {
+            console.log('Collecting features for road name:', roadName);
+            
+            // Query all features with matching name
+            const allFeatures = map.querySourceFeatures('LTS_source', {
+                filter: ['==', 'name', roadName]
+            });
+            
+            console.log('Found', allFeatures.length, 'features to highlight');
+            
+            // Batch update feature states
+            allFeatures.forEach(feature => {
+                if (feature.id !== undefined) {
+                    currentHighlightedFeatureIds.push(feature.id);
+                    map.setFeatureState(
+                        { source: 'LTS_source', id: feature.id },
+                        { highlighted: true }
+                    );
+                }
+            });
         }
 
         // Show info in the panel
@@ -227,23 +255,37 @@ LTS_names.forEach((LTS_name, i) => {
         // Check if click was on the buffer layer
         const features = map.queryRenderedFeatures(e.point, { layers: ['lts-buffer-layer'] });
         if (features.length === 0) {
-            // Clicked somewhere else, hide highlight and close panel
-            map.setLayoutProperty('lts-highlight-layer', 'visibility', 'none');
+            // Clicked somewhere else, clear highlight and close panel
+            console.log('Clearing all highlights - clicked elsewhere');
+            currentHighlightedFeatureIds.forEach(featureId => {
+                map.setFeatureState(
+                    { source: 'LTS_source', id: featureId },
+                    { highlighted: false }
+                );
+            });
+            currentHighlightedFeatureIds = [];
             document.getElementById('info-panel').style.display = 'none';
         }
     });
 
     map.on('zoom', () => {
-        map.setFilter('lts-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
-        map.setFilter('lts-buffer-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
-        map.setFilter('lts-highlight-layer', ['<=', ['get', 'zoom'], map.getZoom()+1]);
+        const zoomFilter = ['<=', ['get', 'zoom'], map.getZoom()+1];
+        map.setFilter('lts-layer', zoomFilter);
+        map.setFilter('lts-buffer-layer', zoomFilter);
+        // Feature state highlights persist automatically through zoom!
     });
 })
 
 // Function to close the info panel
 function closeInfoPanel() {
     document.getElementById('info-panel').style.display = 'none';
-    // Also clear the highlight when closing the panel
-    map.setLayoutProperty('lts-highlight-layer', 'visibility', 'none');
+    // Also clear all highlights when closing the panel
+    currentHighlightedFeatureIds.forEach(featureId => {
+        map.setFeatureState(
+            { source: 'LTS_source', id: featureId },
+            { highlighted: false }
+        );
+    });
+    currentHighlightedFeatureIds = [];
 }
 
